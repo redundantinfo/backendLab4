@@ -44,6 +44,10 @@ app.get('/granted', authenticateToken, (req, res) => {
   res.render("start.ejs");
 });
 
+app.get('admin', authenticateToken, (req, res) => {
+  res.render("admin.ejs");
+});
+
 app.listen(3000, () => {
   console.log('Server started on port 3000');
 });
