@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
@@ -18,10 +19,10 @@ app.get('/', (req, res) => {
 // auth route
 app.post('/identify', (req, res) => {
   //auth
-  const username = req.body.password;
-  const token = jwt.sign(username, process.env.ACCESS_TOKEN_SECRET);
+  const password = req.body.password;
+  const token = jwt.sign(username, process.env.ACCESS_TOKEN);
   currentKey = token;
-  currentPassword = username;
+  currentPassword = password;
   res.redirect("/granted");
 });
 
@@ -32,7 +33,7 @@ app.get('/identify', (req, res) => {
 function authenticateToken(req, res, next) {
   if (currentKey == "") {
     res.redirect("/identify");
-  } else if (jwt.verify(currentKey, process.env.ACCESS_TOKEN_SECRET)) {
+  } else if (jwt.verify(currentKey, process.env.ACCESS_TOKEN)) {
   next();
   } else {
     res.redirect("/identify");
