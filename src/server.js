@@ -44,7 +44,7 @@ app.get('/granted', authenticateToken, (req, res) => {
   res.render("start.ejs");
 });
 
-app.get('admin', authenticateToken, (req, res) => {
+app.get('/admin', authenticateToken, (req, res) => {
   res.render("admin.ejs");
 });
 
