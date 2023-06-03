@@ -40,12 +40,13 @@ app.get("/identify", async (req, res) => {
     if (!validPassword) {
       return res.status(401).json({ message: "Invalid password" });
     }
-    // create and assign a token
-    const token = jwt.sign({ id: user.id, role: user.role }, process.env.TOKEN_SECRET, { expiresIn: "1h" });
+    // create and assign token
+    const token = jwt.sign({ role: user.role }, process.env.TOKEN_SECRET, { expiresIn: "1h" });
     res.json({ token });
+
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 
