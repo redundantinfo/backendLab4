@@ -11,7 +11,11 @@ app.use(express.urlencoded({ extended: false }));
 app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
-  res.redirect("/identify");
+  res.render("identify.ejs");
+});
+
+app.get("/register", (req, res) => {
+  res.render("register.ejs");
 });
 
 // TODO: finish this route
@@ -25,8 +29,12 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.get("/identify", (req, res) => {
+  res.render("identify.ejs");
+});
+
 // login route
-app.get("/identify", async (req, res) => {
+app.post("/identify", async (req, res) => {
   try {
     const { name, password } = req.body;
     const user = await db.getUserByName(name);
