@@ -12,6 +12,7 @@ app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   res.render("identify.ejs");
+  console.log(db.getAllUsers());
 });
 
 app.get("/register", (req, res) => {
@@ -23,6 +24,8 @@ app.post("/register", async (req, res) => {
   try {
     const { name, role, password } = req.body;
     await db.insertUser(name, role, password);  // password is hashed in insertUser() from database.js
+    console.log("User created");
+    console.log(req.body);
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
@@ -49,7 +52,7 @@ app.post("/identify", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
     // create and assign token
-    const token = jwt.sign({ role: user.role }, process.env.TOKEN_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ role: user.role }, process.env.TACCESS_TOKEN, { expiresIn: "1h" });
     res.json({ token });
 
   } catch (err) {
@@ -70,7 +73,7 @@ app.get("/protected", authToken, (req, res) => {
   } else if (role === "student") {
     res.redirect("/student");
   } else {
-    res.status(403).json({ message: "Error: Invalid user role" });
+    res.status(401).json({ message: "Error: Invalid user role" });
   }
 });
 

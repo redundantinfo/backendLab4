@@ -1,52 +1,67 @@
 const sqlite = require('sqlite3').verbose();
-const db = new sqlite.Database('./db.sqlite');
 const bcrypt = require('bcrypt');
 
-const createTable = () => {
-  db.serialize(() => {
-    db.run('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, role TEXT, password TEXT)');
-    /* WIP: used for testing purposes, before implementing the register page.
-    db.run("INSERT INTO Users(name, role, password) VALUES('admin', 'admin', 'admin'), ('user1', 'student', 'password'), ('user2', 'student', 'password2'), ('teacher', 'teacher', 'password3')")
-    */
-  });
-};
+// init database
+const db = new sqlite.Database('db.sqlite', (err) => {
+  if (err) {
+    console.error('Database init failiure', err);
+  } else {
+    console.log('Database init success');
+  }
+});
 
-const getAllUsers = () => {
+function createTable() {
+  return new Promise((resolve, reject) => {
+    db.run('CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, role TEXT, password TEXT)', (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve('Table created');
+      }
+    });
+  }
+  );
+}
+
+function getAllUsers() {
   return new Promise((resolve, reject) => {
     db.all('SELECT * FROM users', (err, rows) => {
       if (err) {
         reject(err);
+      } else {
+        resolve(rows);
       }
-      resolve(rows);
     });
   });
 }
 
-const getUserByName = (name) => {
+function getUserByName(name) {
   return new Promise((resolve, reject) => {
     db.get('SELECT * FROM users WHERE name = ?', [name], (err, row) => {
       if (err) {
         reject(err);
+      } else {
+        resolve(row);
       }
-      resolve(row);
     });
   });
 }
 
-const insertUser = (name, role, password) => {
-  return new Promise((resolve, reject) => {
-    bcrypt.hash(password, 10, (err, hash) => {
-      if (err) {
-        reject(err);
-      }
-      db.run('INSERT INTO users(name, role, password) VALUES(?, ?, ?)', [name, role, hash], (err) => {
+async function insertUser(name, role, password) {
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    return new Promise((resolve, reject) => {
+      db.run('INSERT INTO users(name, role, password) VALUES(?, ?, ?)', [name, role, hashedPassword], (err) => {
         if (err) {
           reject(err);
+        } else {
+          resolve('User created');
         }
-        resolve();
       });
     });
-  });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 module.exports = {
