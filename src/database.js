@@ -2,7 +2,7 @@ const sqlite = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 
 // init database
-const db = new sqlite.Database('db.sqlite', (err) => {
+const db = new sqlite.Database(':memory:', (err) => {
   if (err) {
     console.error('Database init failiure', err);
   } else {
