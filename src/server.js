@@ -12,20 +12,24 @@ app.set("view engine", "ejs");
 
 app.get("/", (req, res) => {
   res.render("identify.ejs");
-  console.log(db.getAllUsers());
+  db.createTable();
 });
 
 app.get("/register", (req, res) => {
   res.render("register.ejs");
 });
 
-// TODO: finish this route
 app.post("/register", async (req, res) => {
   try {
     const { name, role, password } = req.body;
     await db.insertUser(name, role, password);  // password is hashed in insertUser() from database.js
     console.log("User created");
     console.log(req.body);
+
+    const users = await db.getAllUsers();
+    console.log(users);
+
+    res.render("identify.ejs");
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Internal server error" });
@@ -37,7 +41,7 @@ app.get("/identify", (req, res) => {
 });
 
 // login route
-app.post("/identify", async (req, res) => {
+app.post("/identify", async (req, res, next) => {
   try {
     const { name, password } = req.body;
     const user = await db.getUserByName(name);
@@ -52,8 +56,7 @@ app.post("/identify", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
     // create and assign token
-    const token = jwt.sign({ role: user.role }, process.env.TACCESS_TOKEN, { expiresIn: "1h" });
-    res.json({ token });
+    const token = jwt.sign({ role: user.role }, process.env.ACCESS_TOKEN, { expiresIn: "1h" });
 
   } catch (err) {
     console.log(err);
@@ -67,11 +70,11 @@ app.get("/protected", authToken, (req, res) => {
   const { role } = req.user;
   // check user role
   if (role === "admin") {
-    res.redirect("/admin");
+    res.render("/admin");
   } else if (role === "teacher") {
-    res.redirect("/teacher");
+    res.render("/teacher");
   } else if (role === "student") {
-    res.redirect("/student");
+    res.render("/student");
   } else {
     res.status(401).json({ message: "Error: Invalid user role" });
   }
