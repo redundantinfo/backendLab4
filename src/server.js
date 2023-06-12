@@ -86,7 +86,8 @@ app.get("/protected", authToken, (req, res) => {
   } else if (role === "student") {
     res.render("student1.ejs");
   } else {
-    res.status(401).json({ message: "Error: Invalid user role" });
+    console.log("User role not found");
+    res.redirect("/identify");
   }
 });
 
